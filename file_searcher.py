@@ -1,3 +1,7 @@
+#works 'C:\\Users\\users'
+#u give string it finds if the file you told exists in the or not . ony picks up last file names  so if i write solar ir wont give me list of everything in solar but only the directory solar
+
+
 import os
 import time
 #watch dog is the module that sees for file changes made during whe the program is running . if there is it stores them in the list
@@ -14,14 +18,28 @@ def build_cache(root_dir):
         cache.extend([os.path.join(root, directory) for directory in dirs])
     return cache
 
-def search_cache(query, cache):
+def search_cache(query, cache , file_type):
     matches = []
     for item in cache:
         last_backslash_index = item.rfind("\\")
         #reduces the string you entered into a lowercase string
         if last_backslash_index != -1 and query.lower() in item[last_backslash_index + 1:].lower():
-            matches.append(item)
+            if file_type == "" or file_type==" ":
+                matches.append(item)
+
+            else:
+                if item.endswith(file_type):
+                    matches.append(item)
     return matches
+
+
+def extension_breaker(ext_string):
+    file_extensions = []
+    for extension in ext_string.split(" "):
+        if extension.startswith("."):
+            file_extensions.append(extension)
+
+    return file_extensions
 
 class MyHandler(FileSystemEventHandler):
     def __init__(self, cache):
@@ -31,7 +49,7 @@ class MyHandler(FileSystemEventHandler):
         if not event.is_directory:
             self.cache.append(event.src_path)
 
-#for now we are searching the full c directory . if you want you can also search only some specific parts of your root system
+
 root_directory = 'C:\\'
 
 # Build the initial cache
@@ -45,12 +63,13 @@ observer.start()
 
 try:
     while True:
-        search_query = input("Enter a search query (or 'quit' to exit): ")
+        search_query = input("Enter a search query :")
+        file_type = input("If one , specify file type leave blank for multiple ones : ")
 
         if search_query.lower() == 'quit':
             break
 
-        results = search_cache(search_query, cache)
+        results = search_cache(search_query, cache,file_type)
 
         if results:
             print(f"Found {len(results)} matches:")
@@ -65,4 +84,6 @@ except KeyboardInterrupt:
     observer.stop()
 
 observer.join()
+
+
 
